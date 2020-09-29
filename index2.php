@@ -32,6 +32,10 @@ $config = array_merge($default_config, $config);
             width: 500px;
         }
 
+        select {
+            width: 50%;
+        }
+
         .flex-container {
             display: flex;
             flex-wrap: wrap;
@@ -44,7 +48,15 @@ $config = array_merge($default_config, $config);
             box-sizing: border-box;
         }
 
+        .flex-container > .full-width {
+            width: 100%;
+        }
+
         @media only screen and (max-width: 600px) {
+            body {
+                padding-left: 5%;
+            }
+
             form {
                 width: 90%;
             }
@@ -126,6 +138,13 @@ $config = array_merge($default_config, $config);
                 echo $config['form']['sender']['email']['palceholder'];
             ?>"
         >
+            </div>
+            <div class="item full-width">
+                <label for="recipient">Recipient: </label>
+                <select name="recipient" id="recipient">
+                    <option value="hello@e1mo.de">hello</option>
+                </select>
+                @e1mo.de
             </div>
         </div>
         <br>
