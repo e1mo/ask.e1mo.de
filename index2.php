@@ -77,7 +77,6 @@ $config = array_merge($default_config, $config);
 
             input[type=submit] {
                 width: 100%;
-                margin: .2em;
             }
         }
     </style>
