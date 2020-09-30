@@ -1,132 +1,180 @@
 <?php
-#ini_set('display_errors', 1);
-#ini_set('display_startup_errors', 1);
-#error_reporting(E_ALL);
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+$default_config = require('config.default.php');
+$config = require('config.php');
+$config = array_replace_recursive($default_config, $config);
+
+if (strtolower($config['email']['provider']) == 'smtp') {
+    require 'PHPMailer/src/Exception.php';
+    require 'PHPMailer/src/PHPMailer.php';
+    require 'PHPMailer/src/SMTP.php';
+}
+
+$message = '';
+$mailSuccessCode = true;
+
+if (isset($_POST['message'])) {
+    $message .= 'Message on '.date('c') . ":\n\n";
+    $message .= $_POST['message'];
+    // In case any of our lines are larger than 70 characters, we should use wordwrap()
+    $message = wordwrap($message, 70, "\r\n");
+
+    $toUser = $config['owner']['e-mail'];
+
+    switch (strtolower($config['email']['provider'])) {
+        case 'smtp':
+            try {
+                $mail = new PHPMailer(True);
+                $mail->isSMTP();
+                $mail->CharSet = 'UTF-8';
+                $mail->Host = $config['email']['smtp']['host'];
+                $mail->SMTPAuth = true;
+                $mail->Username = $config['email']['smtp']['user'];
+                $mail->Password = $config['email']['smtp']['pass'];
+                if (strtolower($config['email']['smtp']['crypt']) == 'smtps') {
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                } else {
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                }
+                $mail->Port = (int) $config['email']['smtp']['port'];
+
+                $mail->setFrom($config['message']['sender']);
+                $mail->addAddress($toUser);
+
+                $mail->Subject = $config['message']['subject'];
+                $mail->Body    = $message;
+                $mail->send();
+                $mailSuccessCode = true;
+                $mailResponse = "Message has been sent";
+            } catch (Exception $e) {
+                $mailSuccessCode = false;
+                $mailResponse = "Message could not be sent. Mailer Error: " . $mail->ErrorInfo;
+            }
+
+            break;
+
+        default:
+            $headers['From'] = $config['message']['sender'];
+            $headers['Mime-Version'] = '1.0';
+            $headers['Content-type'] = 'text/plain; charset=UTF-8';
+
+            $mailSuccessCode = mail($toUser, $config['message']['subject'], $message, $headers);
+            if ($mailSuccessCode) {
+                $mailResponse = 'Your message was sent successfully.';
+            } else {
+                $mailResponse = 'There was an error during the sending of the E-Mail.';
+            }
+
+            break;
+    }
+}
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="Send e1mo an anonymous message">
-	<meta name="author" content="e1mo">
-	<title>Ask e1mo something</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $config['page']['title']; ?></title>
+    <meta name="description" content="<?php echo $config['page']['description']; ?>">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<?php
-$allowedRcpts = [
-	"nerviges",
-	"anstrengendes",
-	"ueberfluessiges",
-	"kaputtmachendes",
-	"stoerendes",
-	"nicht-kommunizierendes",
-	"unrealistische-anforderungen-habendes",
-	"ganz-passables",
-	"liebenswertes",
-	"akzeptables",
-	"depressives",
-	"valides"];
-shuffle($allowedRcpts);
-session_start();
-$token = hash('sha512', openssl_random_pseudo_bytes(64));
+    <div class="content">
+        <?php
+            if (isset($mailResponse)) {
+                if ($mailSuccessCode) {
+                    $base = '<div class="success">%s</div>';
+                } else {
+                    $base = '<div class="error">%s</div>';
+                }
 
-function mlheader($value)
-{
-    $value = str_replace("\n\n", "\n", $value);
-    return trim(str_replace("\n", "\n ;", $value));
-}
-
-$isValidAddr = true;
-$isValidUser = true;
-
-if (!empty($_POST['message']) && (isset($_POST['token']) && $_POST['token'] === $_SESSION['token']))
-{
-    $message = 'Message on ' . date('c') . ":\n\n";
-    $message .= $_POST['message'];
-
-    $toUser = 'nerviges';
-    if (isset($_POST['rcpt']))
-    {
-        $isValidUser = in_array($_POST['rcpt'], $allowedRcpts);
-        $isValidAddr = filter_var($_POST['rcpt'] . '@e1mo.de', FILTER_VALIDATE_EMAIL);
-        if (($isValidUser || random_int(1, 3) < 3) && $isValidAddr)
-        {
-            $toUser = $_POST['rcpt'];
-        }
-        else
-        {
-            if (!$isValidUser)
-            {
-                echo 'Nice try, trying to send it to ' . $_POST['rcpt'] . '@e1mo.de but naye... I\'m sending it to the normal address' . "\n<br>";
+                printf($base, $mailResponse);
             }
-            if (!$isValidAddr)
-            {
-                echo 'Come on... try at least to provide an valid email address...' . "\n<br>";
+        ?>
+        <h1><?php echo $config['page']['title']; ?></h1>
+        <p><?php echo $config['page']['description']; ?></p>
+
+        <form action="" method="post">
+            <?php
+            if (!empty($config['form']['message']['label'])) {
+    ?><label for="message"><?php echo $config['form']['message']['label']; ?></label><br>
+    <?php
             }
-        }
-    }
-    if (!$isValidUser || !$isValidAddr)
-    {
-        $message .= "\n\nThey tried to send it to the invalid address of \"" . $_POST['rcpt'] . "@e1mo.de\"\n\$isValidUser\t=>\t" . var_export($isValidUser, true) . "\n\$isValidAddr\t=>\t" . var_export($isValidAddr, true);
-    }
-
-    $toAddr = $toUser . '@e1mo.de';
-
-    $headers = [];
-    $headers['From'] = 'ask@e1mo.de';
-    $headers['Mime-Version'] = '1.0';
-    $headers['Content-type'] = 'text/plain; charset=UTF-8';
-
-    if (!empty($_POST['email']) && filter_var($_POST['email'], FILTER_VALIDATE_EMAIL))
-    {
-        $headers['From'] = $_POST['email'];
-        $headers['Reply-To'] = $_POST['email'];
-        #mail($_POST['email'], 'Your message to e1mo', $message, ['From' => 'ask@e1mo.de']);
-        
-    }
-
-    $mailret = mail($toAddr, 'ask.e1mo.de', $message, $headers);
-    if ($mailret)
-    {
-        printf('Mail has been sent');
-    }
-    else
-    {
-        printf("Mail sending failed");
-    }
-}
-
-$_SESSION['token'] = $token;
-
-?>
-
-<h1>Send anonymous message to e1mo</h1>
-
-<form method="post" action="">
-	<textarea rows="30" cols="50" name="message" placeholder="I always wanted to tell you that..." required></textarea><br>
-	<input type="hidden" value="<?php echo $token; ?>" name="token" required autofocus>
-	<input type="submit" value="send"><br>
-	<input type="email" placeholder="person@example.com" id="email" name="email"><br>
-	<label for="email">E-Mail if you want an reply. <b>THIS IS OPTIONAL</b></label><br>
-	<label for="rcpt">Recipient address: </label>
-	<select name="rcpt" id="rcpt">
-		<?php
-foreach ($allowedRcpts as $item)
-{
-    if (random_int(1, 4) > 1)
-    {
-        echo '<option value="' . $item . '">' . $item . '</option>';
-    }
-}
-?>
-	</select>
-	<label for="rcpt">@e1mo.de</label>
-</form>
-
-<a style="display: none;" rel="me" href="https://cuties.social/@e1mo">Mastodon</a>
+            ?>
+            <textarea
+                name="message"
+                id="message"
+                required
+                autofocus
+                placeholder="<?php
+                    echo $config['form']['message']['placeholder'];
+                ?>"
+            ><?php
+                if (!$mailSuccessCode && !empty($_POST['message'])) {
+                    echo $_POST['message'];
+                }
+            ?></textarea>
+            <br>
+            <p><?php
+                echo $config['form']['sender']['label'];
+            ?></p>
+            <div class="flex-container">
+                <div class="item">
+            <?php
+            if (!empty($config['form']['sender']['name']['label'])) {
+    ?><label for="sender-name"><?php echo $config['form']['sender']['name']['label']; ?></label><br>
+    <?php
+            }
+            ?>
+            <input
+                type="text"
+                name="sender-name"
+                id="sender-name"
+                placeholder="<?php
+                    echo $config['form']['sender']['name']['placeholder'];
+                ?>"
+            >
+                </div>
+                <div class="item">
+            <?php
+            if (!empty($config['form']['sender']['email']['label'])) {
+    ?><label for="sender-name"><?php echo $config['form']['sender']['email']['label']; ?></label><br>
+    <?php
+            }
+            ?>
+            <input
+                type="email"
+                name="sender-email"
+                id="sender-email"
+                placeholder="<?php
+                    echo $config['form']['sender']['email']['palceholder'];
+                ?>"
+            >
+                </div>
+                <!--<div class="item full-width">
+                    <label for="recipient">Recipient: </label><br>
+                    <div class="full-width">
+                        <select name="recipient" id="recipient">
+                            <option value="hello@e1mo.de">hello</option>
+                        </select>
+                        @e1mo.de
+                    </div>
+                </div>-->
+            </div>
+            <br>
+            <input type="submit" value="<?php
+                echo $config['form']['submit']['label'];
+            ?>">
+        </form>
+    </div>
 </body>
 </html>
-
