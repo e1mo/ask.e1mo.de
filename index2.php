@@ -1,11 +1,22 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 $default_config = require('config.default.php');
 $config = require('config.php');
-$config = array_merge($default_config, $config);
+$config = array_replace_recursive($default_config, $config);
+
+if (strtolower($config['email']['provider']) == 'smtp') {
+    require 'PHPMailer/src/Exception.php';
+    require 'PHPMailer/src/PHPMailer.php';
+    require 'PHPMailer/src/SMTP.php';
+}
+
 $message = '';
 $mailSuccessCode = true;
 
@@ -16,15 +27,51 @@ if (isset($_POST['message'])) {
     $message = wordwrap($message, 70, "\r\n");
 
     $toUser = $config['owner']['e-mail'];
-    $headers['From'] = $config['message']['sender'];
-    $headers['Mime-Version'] = '1.0';
-    $headers['Content-type'] = 'text/plain; charset=UTF-8';
 
-    $mailSuccessCode = mail($toUser, $config['message']['subject'], $message, $headers);
-    if ($mailSuccessCode) {
-        $mailResponse = 'Your message was sent successfully.';
-    } else {
-        $mailResponse = 'There was an error during the sending of the E-Mail.';
+    switch (strtolower($config['email']['provider'])) {
+        case 'smtp':
+            try {
+                $mail = new PHPMailer(True);
+                $mail->isSMTP();
+                $mail->Host = $config['email']['smtp']['host'];
+                $mail->SMTPAuth = true;
+                $mail->Username = $config['email']['smtp']['user'];
+                $mail->Password = $config['email']['smtp']['pass'];
+                if (strtolower($config['email']['smtp']['crypt']) == 'smtps') {
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                } else {
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                }
+                $mail->Port = (int) $config['email']['smtp']['port'];
+
+                $mail->setFrom($config['message']['sender']);
+                $mail->addAddress($toUser);
+
+                $mail->Subject = $config['message']['subject'];
+                $mail->Body    = $message;
+                $mail->send();
+                $mailSuccessCode = true;
+                $mailResponse = "Message has been sent";
+            } catch (Exception $e) {
+                $mailSuccessCode = false;
+                $mailResponse = "Message could not be sent. Mailer Error: " . $mail->ErrorInfo;
+            }
+
+            break;
+
+        default:
+            $headers['From'] = $config['message']['sender'];
+            $headers['Mime-Version'] = '1.0';
+            $headers['Content-type'] = 'text/plain; charset=UTF-8';
+
+            $mailSuccessCode = mail($toUser, $config['message']['subject'], $message, $headers);
+            if ($mailSuccessCode) {
+                $mailResponse = 'Your message was sent successfully.';
+            } else {
+                $mailResponse = 'There was an error during the sending of the E-Mail.';
+            }
+
+            break;
     }
 }
 
