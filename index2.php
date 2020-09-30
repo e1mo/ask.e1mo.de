@@ -22,7 +22,7 @@ $mailSuccessCode = true;
 
 if (isset($_POST['message'])) {
     $message .= 'Message on '.date('c') . ":\n\n";
-    $message .= htmlentities($_POST['message']);
+    $message .= $_POST['message'];
     // In case any of our lines are larger than 70 characters, we should use wordwrap()
     $message = wordwrap($message, 70, "\r\n");
 
@@ -33,6 +33,7 @@ if (isset($_POST['message'])) {
             try {
                 $mail = new PHPMailer(True);
                 $mail->isSMTP();
+                $mail->CharSet = 'UTF-8';
                 $mail->Host = $config['email']['smtp']['host'];
                 $mail->SMTPAuth = true;
                 $mail->Username = $config['email']['smtp']['user'];
