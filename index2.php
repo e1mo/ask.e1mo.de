@@ -139,11 +139,13 @@ $config = array_merge($default_config, $config);
         >
             </div>
             <div class="item full-width">
-                <label for="recipient">Recipient: </label>
-                <select name="recipient" id="recipient">
-                    <option value="hello@e1mo.de">hello</option>
-                </select>
-                @e1mo.de
+                <label for="recipient">Recipient: </label><br>
+                <div class="full-width">
+                    <select name="recipient" id="recipient">
+                        <option value="hello@e1mo.de">hello</option>
+                    </select>
+                    @e1mo.de
+                </div>
             </div>
         </div>
         <br>
