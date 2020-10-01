@@ -190,6 +190,7 @@ key | description | default | type
 message | The main textarea at the top of the page | `['label' => 'Your message to me', 'placeholder' => 'I\'ve always wanted to tell you...']` | array with strings
 submit | The label of the submit button | `['label' => 'Send it!']` | array with strings
 sender | Array with label and placeholder for the optional senders name and email | See [sender](#sender) | array
+recipient | The label / description printed aboce the recipient choices if enabled | `'Whom to send the message to?'` | string
 
 ### sender
 

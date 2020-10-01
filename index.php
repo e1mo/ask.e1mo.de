@@ -264,6 +264,9 @@ session_unset();
                 echo $config['form']['submit']['label'];
             ?>">
         </form>
+        <div>
+            Powered by the Open-Source <a href="https://github.com/e1mo/ask.e1mo.de" title="Sour code on GitHub">ask.e1mo.de</a> by <a href="https://github.com/e1mo">e1mo</a>, released under the BSD 3-Clause license.
+        </div>
     </div>
 </body>
 </html>

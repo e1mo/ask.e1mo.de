@@ -43,7 +43,10 @@ return [
                 'label' => 'Your Name (optional)',
                 'placeholder' => 'Lucky Luke',
             ]
-        ]
+        ],
+				'recipient' => [
+					'label' => 'Whom to send the message to?'
+				]
     ],
     'email' => [
         'provider' => 'sendmail',
