@@ -257,7 +257,10 @@ session_unset();
 													}
 													echo '</select>';
 												} else {
-													printf('<span>%s</span>', $recipientChoices['domains'][0]);
+													printf('
+														<span>%1$s</span><input type="hidden" value="%1$s" name="recipient-domain">',
+														$recipientChoices['domains'][0]
+													);
 												}
                     }
                     echo '</div>
