@@ -36,12 +36,12 @@ return [
         ]
     ],
     'debounce' => true, // TODO: Avoid duplicate sending
-    'email' => [ // TODO: Chose between php native mail and SMTP
-        'provider' => 'sendmail', // TODO: Sendmail (native mail) or SMTP (PHPMailer)
-        'smtp' => [ // TODO: Optional, required for smtp 
+    'email' => [
+        'provider' => 'sendmail',
+        'smtp' => [
             'host' => '',
             'port' => 465,
-            'crypt' => 'smtps', // starttls or smtps
+            'crypt' => 'smtps',
             'user' => '',
             'pass' => ''
         ],
