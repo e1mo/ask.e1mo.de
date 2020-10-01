@@ -28,6 +28,26 @@ if (isset($_POST['message'])) {
 
     $toUser = $config['owner']['e-mail'];
 
+    $senderName = '';
+    $replyTo = '';
+    if (!empty($_POST['sender-name'])) {
+        $senderName = $_POST['sender-name'];
+    }
+
+    $sender = $config['message']['sender'];
+    if (!empty($_POST['sender-email'])) {
+        if(filter_var($_POST['sender-email'], FILTER_VALIDATE_EMAIL)) {
+            if ($config['message']['force-sender']) {
+                $replyTo = $_POST['sender-email'];
+            } else {
+                $sender = $_POST['sender-email'];
+            }
+        } else {
+            $mailSuccessCode = false;
+            $mailResponse = 'Invalid senders E-Mail Adress';
+        }
+    }
+
     switch (strtolower($config['email']['provider'])) {
         case 'smtp':
             try {
@@ -45,7 +65,17 @@ if (isset($_POST['message'])) {
                 }
                 $mail->Port = (int) $config['email']['smtp']['port'];
 
-                $mail->setFrom($config['message']['sender']);
+                if (!empty($senderName)) {
+                    $mail->setFrom($sender, $senderName);
+                } else {
+                    $mail->setForm($sender);
+                }
+                if (!empty($replyTo) && !empty($senderName)) {
+                    $mail->addReplyTo($replyTo, $senderName);
+                } elseif (!empty($replyTo)) {
+                    $mail->addReplyTo($replyTo);
+                }
+
                 $mail->addAddress($toUser);
 
                 $mail->Subject = $config['message']['subject'];
@@ -61,7 +91,23 @@ if (isset($_POST['message'])) {
             break;
 
         default:
-            $headers['From'] = $config['message']['sender'];
+            if (!empty($senderName)) {
+                $headers['From'] = '%2$s <%1$s>';
+            } else {
+                $headers['From'] = '%1$s';
+            }
+
+            if (!empty($senderName) && !empty($replyTo)) {
+                $headers['Reply-To'] = '%2$s <%1$s>';
+            } elseif (!empty($replyTo)) {
+                $headers['Reply-To'] = '%1$s';
+            }
+
+            if (!empty($replyTo) && !empty($senderName)) {
+                $headers['Reply-To'] = sprintf($headers['Reply-To'], $sender, $senderName);
+            }
+
+            $headers['From'] = sprintf($headers['From'], $sender, $senderName);
             $headers['Mime-Version'] = '1.0';
             $headers['Content-type'] = 'text/plain; charset=UTF-8';
 
