@@ -9,6 +9,7 @@ return [
     'owner' => [
         'name' => '',
         'e-mail' => '',
+        'allow-bad-recipient' => false, // Set to tue if you want to skip PHPMailers E-Mail validation (e.g. name only recipients for local test sendmail setup) 
     ],
     'message' => [
         'subject' => 'New Message for you',
@@ -45,4 +46,7 @@ return [
             'pass' => ''
         ],
     ],
+    'modules' => [ // Different modules taht are included at differenc parts of the process. Must be present in modules/<name>/ and provide a main.php
+        'headers' => [] // Must return an array with all custom headers to be added
+    ]
 ];

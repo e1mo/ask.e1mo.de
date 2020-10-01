@@ -13,11 +13,9 @@ $default_config = require('config.default.php');
 $config = require('config.php');
 $config = array_replace_recursive($default_config, $config);
 
-if (strtolower($config['email']['provider']) == 'smtp') {
-    require 'PHPMailer/src/Exception.php';
-    require 'PHPMailer/src/PHPMailer.php';
-    require 'PHPMailer/src/SMTP.php';
-}
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
 
 $message = '';
 $mailSuccessCode = true;
@@ -51,77 +49,52 @@ if (isset($_POST['message']) && empty($_SESSION['message'])) {
         }
     }
 
-    switch (strtolower($config['email']['provider'])) {
-        case 'smtp':
-            try {
-                $mail = new PHPMailer(True);
-                $mail->isSMTP();
-                $mail->CharSet = 'UTF-8';
-                $mail->Host = $config['email']['smtp']['host'];
-                $mail->SMTPAuth = true;
-                $mail->Username = $config['email']['smtp']['user'];
-                $mail->Password = $config['email']['smtp']['pass'];
-                if (strtolower($config['email']['smtp']['crypt']) == 'smtps') {
-                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-                } else {
-                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                }
-                $mail->Port = (int) $config['email']['smtp']['port'];
+    $mail = new PHPMailer(false);
+    $mail->CharSet = 'UTF-8';
+    if (strtolower($config['email']['provider']) === 'smtp') {
+        $mail->isSMTP();
+    } else {
+        $mail->isSendmail();
+        $mail->Host = $config['email']['smtp']['host'];
+        $mail->SMTPAuth = true;
+        $mail->Username = $config['email']['smtp']['user'];
+        $mail->Password = $config['email']['smtp']['pass'];
 
-                if (!empty($senderName)) {
-                    $mail->setFrom($sender, $senderName);
-                } else {
-                    $mail->setFrom($sender);
-                }
-                if (!empty($replyTo) && !empty($senderName)) {
-                    $mail->addReplyTo($replyTo, $senderName);
-                } elseif (!empty($replyTo)) {
-                    $mail->addReplyTo($replyTo);
-                }
+        if (strtolower($config['email']['smtp']['crypt']) == 'smtps') {
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        } else {
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        }
+        $mail->Port = (int) $config['email']['smtp']['port'];
+    }
 
-                $mail->addAddress($toUser);
+    if (!empty($senderName)) {
+        $mail->setFrom($sender, $senderName);
+    } else {
+        $mail->setFrom($sender);
+    }
+    if (!empty($replyTo) && !empty($senderName)) {
+        $mail->addReplyTo($replyTo, $senderName);
+    } elseif (!empty($replyTo)) {
+        $mail->addReplyTo($replyTo);
+    }
 
-                $mail->Subject = $config['message']['subject'];
-                $mail->Body    = $message;
-                $mail->send();
-                $mailSuccessCode = true;
-                $mailResponse = "Message has been sent";
-            } catch (Exception $e) {
-                $mailSuccessCode = false;
-                $mailResponse = "Message could not be sent. Mailer Error: " . $mail->ErrorInfo;
-            }
+    if ($config['owner']['allow-bad-recipient']) {
+        $mail::$validator = function($address) {
+            return true;
+        };
+    }
 
-            break;
+    $mail->addAddress($toUser);
 
-        default:
-            if (!empty($senderName)) {
-                $headers['From'] = '%2$s <%1$s>';
-            } else {
-                $headers['From'] = '%1$s';
-            }
-
-            if (!empty($senderName) && !empty($replyTo)) {
-                $headers['Reply-To'] = '%2$s <%1$s>';
-            } elseif (!empty($replyTo)) {
-                $headers['Reply-To'] = '%1$s';
-            }
-
-            if (!empty($replyTo) && !empty($senderName)) {
-                $headers['Reply-To'] = sprintf($headers['Reply-To'], $sender, $senderName);
-            }
-
-            $headers['From'] = sprintf($headers['From'], $sender, $senderName);
-            $headers['Mime-Version'] = '1.0';
-            $headers['Content-type'] = 'text/plain; charset=UTF-8';
-
-            $mailSuccessCode = mail($toUser, $config['message']['subject'], $message, $headers);
-            if ($mailSuccessCode) {
-                $mailResponse = 'Your message was sent successfully.';
-            } else {
-                $mailResponse = 'There was an error during the sending of the E-Mail.';
-            }
-
-            break;
+    $mail->Subject = $config['message']['subject'];
+    $mail->Body    = $message;
+    $mailSuccessCode = $mail->send();
+    if ($mailSuccessCode) {
+        $mailResponse = "Message has been sent";
+    } else {
+        $mailSuccessCode = false;
+        $mailResponse = "Message could not be sent. Mailer Error: " . $mail->ErrorInfo;
     }
 
     if ($mailSuccessCode) {
