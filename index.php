@@ -114,7 +114,7 @@ if (isset($_POST['message']) && empty($_SESSION['message'])) {
     $mail->Body    = $message;
 
     foreach ($config['modules']['headers'] as $module) {
-        $addHeaders = require( __DIR__ . '/modules/' . $module . '/main.php');
+        $addHeaders = require( __DIR__ . '/modules/' . $module . '/headers.php');
         foreach ($addHeaders as $hname => $hval) {
             $mail->addCustomHeader($hname, $hval);
         }
