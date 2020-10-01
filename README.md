@@ -4,7 +4,7 @@ A more or less simple php application to take in anonymus questions from people 
 
 It is capable of sending E-Mail either trough SMTP or sendmail.
 
-# Requirements
+## Requirements
 
 - PHP, tested with Version 7.4 but should be finde with at leas 7.\*
 - Webserver (nginx example is provided)
@@ -13,7 +13,7 @@ It is capable of sending E-Mail either trough SMTP or sendmail.
 	- sendmail
 - [PHPMailer](https://github.com/PHPMailer/PHPMailer) by [Marcus Bointonis](https://github.com/Synchro) is used to send E-Mails (included as a git submodule)
 
-# Installation
+## Installation
 
 The current stable source code is available at <https://github.com/e1mo/ask.e1mo.de> in the `main` branch. You just need to clone it to a location of your choosing, initialize all git submodules and point your webserver at it.
 
@@ -51,7 +51,7 @@ $ sudo systemctl restart nginx
 
 If you are using the [apache httpd web server](https://httpd.apache.org/) any basic configuration should do. Only note, that you must manually create a `.htaccess` or something comparable to deny access to the `config.php`! Theoretically it s hould not display anything, but in case PHP is misconfigured it may leak your SMTP Credentials.
 
-# Configuration
+## Configuration
 
 All configuration parameters are read from `config.php`. Values not defined in there will be taken from `config.default.php`. This is a fail-safe, do not the defaults file, there is a good chance of it causing errors. It will also be updated with newer releases to avoid errors.
 
@@ -95,7 +95,7 @@ return [
 ];
 ```
 
-## page
+### page
 
 This section section basic parameters of the page. These preferences are located under the `page` key.
 
@@ -106,7 +106,7 @@ title | Title tag and heading on the page | `'Ask me something!'` | string
 description | HTML Meta description and printed below the heading | `'Feel  free to ask me anything. Please just be reasonably polite.'` | string
 debug | Enable PHPs printing of exceptions, ... | `false` | boolean
 
-## owner
+### owner
 
 This section controlls to whom the mail should go.
 
@@ -117,7 +117,7 @@ e-mail | The default E-Mail to send mail to, is the fallback if [recipient-choic
 recipient-choices | Allow users to chose an E-Mail to whom the mail should be delivered, it's a nice gimmick. Full configuration is described down below | `['enabled' => false, 'choices' => []]` | array
 allow-bad-recipient | Force a bad recipient address to be accepted (e.g. having no domain part) | `false` | boolean
 
-### recipient-choices
+#### recipient-choices
 
 key | description | default | type
 --- | ----------- | ------- | ----
@@ -174,7 +174,7 @@ In this case, just like the one above, **one** drop-down will be present above t
 
 In this case, just like the one above, **two** drop-down will be present above the submit button. One for the user (the part before the @-sign) and one for the domain. It happens when domain-keys are given and the values are equal across all domains.
 
-## message
+### message
 
 key | description | default | type
 --- | ----------- | ------- | ----
@@ -182,7 +182,7 @@ subject | Subject of the E-Mail sent to you | `'[ask.e1mo.de] New message for yo
 sender | The E-Mail for the from E-Mail header | `'ask@example.com'` | string
 force-sender | Always set the from E-Mail to the value of `sender`. If a user provides their E-Mail it will be used as the reply to value. | 'false' | boolean
 
-## form
+### form
 
 Every entry, except the submit button, consists of of a label and a placeholder, both of them are strings. Labels will be printed above the field, placeholders are present when there is nothing inside a input field.
 
@@ -193,7 +193,7 @@ submit | The label of the submit button | `['label' => 'Send it!']` | array with
 sender | Array with label and placeholder for the optional senders name and email | See [sender](#sender) | array
 recipient | The label / description printed aboce the recipient choices if enabled | `['label' => 'Whom to send the message to?']` | array with string
 
-### sender
+#### sender
 
 key | description | default | type
 --- | ----------- | ------- | ----
@@ -201,14 +201,14 @@ label | Will be printed above the input fields | `'This is optional.'` | string
 email | Input field for the senders email, consists of label and placeholder | `['label' => 'Your E-Mail (optional)', 'placeholder' => 'person@example.com']` | array with strings
 name | Input field for the senders email, consists of label and placeholder | `['label' => 'Your Name (optional)', 'placeholder' => 'Lucky Luke']` | array with strings
 
-## email
+### email
 
 key | description | default | type
 --- | ----------- | ------- | ----
 provider | How to deliver the E-Mail, available: `sendmail` and `smtp` | `'sendmail'` | string
 smtp | Configuration (host, user, password, port, crypt) when using SMTP. See [smtp](#smtp) | `['host' => '', 'port' => 465, 'crypt' => 'smtps', 'user' => '', pass => '']` | array
 
-### smtp
+#### smtp
 
 key | description | default | type
 --- | ----------- | ------- | ----
@@ -218,7 +218,7 @@ crypt | Encryption when communicating with the smtp-host. Can be `smtps` or `sta
 user | User for authenticating against the smtp-host | `''` | string
 pass | Password for authenticating against the smtp-host | `''` | string
 
-## modules
+### modules
 
 key | description | default | type
 --- | ----------- | ------- | ----
@@ -226,7 +226,7 @@ headers | Modules for providing custom headers to the E-Mail, add one module nam
 
 See [modules](#modules-1) for further explanation of the different functions a module can support.
 
-# Modules
+## Modules
 
 Modules are still very much WIP. Currently modules only can add custom headers to the E-Mails sent out. Their layout is very simple. Header-Modules must be listed in the configuration under `['modules']['headers']` to be enabled. It must be listed with the name the module (located in `/modules/`) folder has. For every supported function, the module must provide a corresponding PHP file returning a certain datatype.
 
@@ -237,6 +237,6 @@ Function | Explanation | Filename | Data-Type | Example
 Headers  | Add custom headers to ourgoing mail | `headers.php` | Array, keys are the header names and values the values | <https://github.com/e1mo/git-version-headers/blob/main/headers.php>
 
 
-# LICENSE
+## LICENSE
 
 This software is released under the bsd 3-clause by [Moritz 'e1mo' Fromm](https://github.com/e1mo)
