@@ -68,7 +68,7 @@ if (isset($_POST['message'])) {
                 if (!empty($senderName)) {
                     $mail->setFrom($sender, $senderName);
                 } else {
-                    $mail->setForm($sender);
+                    $mail->setFrom($sender);
                 }
                 if (!empty($replyTo) && !empty($senderName)) {
                     $mail->addReplyTo($replyTo, $senderName);
