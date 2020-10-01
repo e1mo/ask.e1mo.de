@@ -1,0 +1,5 @@
+config.php
+modules/*
+!modules/.gitkeep
+!modules/README.md
+.well-known/
