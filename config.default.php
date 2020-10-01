@@ -8,8 +8,17 @@ return [
     ],
     'owner' => [
         'name' => '',
-        'e-mail' => '',
-        'allow-bad-recipient' => false, // Set to tue if you want to skip PHPMailers E-Mail validation (e.g. name only recipients for local test sendmail setup) 
+        'e-mail' => 'owner@ask.example.com',
+        'recipient-choices' => [
+            'enabled' => false,
+            'choices' => [
+                //'domain1' => [
+                //    'ask', // => ask@domain1
+                //    'awesome', // => awesome@domain1
+                //]
+            ]
+        ],
+        'allow-bad-recipient' => false, // Set to tue if you want to skip PHPMailers E-Mail validation (e.g. name only recipients for local test sendmail setup)
     ],
     'message' => [
         'subject' => 'New Message for you',

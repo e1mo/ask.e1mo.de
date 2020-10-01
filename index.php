@@ -16,10 +16,17 @@ $config = array_replace_recursive($default_config, $config);
 require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
+require 'functions.php';
 
 $message = '';
 $mailSuccessCode = true;
 $mailResponse = (!empty($_SESSION['message']) ? $_SESSION['message'] : '');
+
+if ($config['owner']['recipient-choices']['enabled']) {
+    $recipientChoices = processRecipientChoices($config['owner']['recipient-choices']['choices']);
+} else {
+    $recipientChoices = [];
+}
 
 if (isset($_POST['message']) && empty($_SESSION['message'])) {
     $message .= 'Message on '.date('c') . ":\n\n";
@@ -28,6 +35,22 @@ if (isset($_POST['message']) && empty($_SESSION['message'])) {
     $message = wordwrap($message, 70, "\r\n");
 
     $toUser = $config['owner']['e-mail'];
+
+    if (!empty($recipientChoices['addresses'])) {
+        if (!empty($_POST['recipient-address'])) {
+            $_toUser = $_POST['recipient-address'];
+        } elseif (!empty($_POST['recipient-user']) && isset($_POST['recipient-domain'])) {
+            $_toUser = $_POST['recipient-user'];
+            if (!empty($_POST['recipient-domain'])) {
+                $_toUser .= '@' . $_POST['recipient-domain'];
+            }
+        }
+        if (in_array($_toUser, $recipientChoices['addresses'])) {
+            $toUser = $_toUser;
+        } else {
+            echo 'Invalid to Address';
+        }
+    }
 
     $senderName = '';
     $replyTo = '';
@@ -45,7 +68,7 @@ if (isset($_POST['message']) && empty($_SESSION['message'])) {
             }
         } else {
             $mailSuccessCode = false;
-            $mailResponse = 'Invalid senders E-Mail Adress';
+            $mailResponse = 'Invalid senders E-Mail Address';
         }
     }
 
@@ -117,6 +140,7 @@ if (isset($_POST['message']) && empty($_SESSION['message'])) {
             (stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://') .
             $_SERVER['HTTP_HOST'] .
             $_SERVER['REQUEST_URI']);
+
         exit();
     }
 }
@@ -205,15 +229,35 @@ session_unset();
                 ?>"
             >
                 </div>
-                <!--<div class="item full-width">
+                <?php
+                if (!empty($recipientChoices)) {
+                echo '
+                <div class="item full-width">
                     <label for="recipient">Recipient: </label><br>
-                    <div class="full-width">
-                        <select name="recipient" id="recipient">
-                            <option value="hello@e1mo.de">hello</option>
-                        </select>
-                        @e1mo.de
-                    </div>
-                </div>-->
+                    <div class="full-width">';
+                    if (empty($recipientChoices['domains']) || empty($recipientChoices['users'])) {
+                        echo "<select class=\"full-width\" name=\"recipient-address\" id=\"recipient-address\" required>\n";
+                        foreach ($recipientChoices['addresses'] as $address) {
+                            printf("<option value=\"%1\$s\">%1\$s</option>\n", $address);
+                        }
+                        echo "</select>";
+                    } else {
+                        echo "<select name=\"recipient-user\" id=\"recipient-user\" required>\n";
+                        foreach ($recipientChoices['users'] as $user) {
+                            printf("<option value=\"%1\$s\">%1\$s</option>\n", $user);
+                        }
+                        echo "</select>
+                        <span class=\"at-connector\">@</span>
+                        <select name=\"recipient-domain\" id=\"recipient-domain\" required>\n";
+                        foreach ($recipientChoices['domains'] as $domain) {
+                            printf("<option value=\"%1\$s\">%1\$s</option>\n", $domain);
+                        }
+                        echo '</select>';
+                    }
+                    echo '</div>
+                </div>
+                ';}
+                ?>
             </div>
             <br>
             <input type="submit" value="<?php

@@ -33,7 +33,12 @@ input[type=submit] {
 }
 
 select {
-  width: 50%;
+  width: calc(50% - 3em);
+  box-sizing: border-box;
+}
+
+.at-connector {
+    margin: 0 calc(2em / 2);
 }
 
 .flex-container {
@@ -48,7 +53,7 @@ select {
   box-sizing: border-box;
 }
 
-.flex-container>.full-width {
+.flex-container .full-width {
   width: 100%;
 }
 
