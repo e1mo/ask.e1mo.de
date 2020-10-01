@@ -89,6 +89,14 @@ if (isset($_POST['message']) && empty($_SESSION['message'])) {
 
     $mail->Subject = $config['message']['subject'];
     $mail->Body    = $message;
+
+    foreach ($config['modules']['headers'] as $module) {
+        $addHeaders = require( __DIR__ . '/modules/' . $module . '/main.php');
+        foreach ($addHeaders as $hname => $hval) {
+            $mail->addCustomHeader($hname, $hval);
+        }
+    }
+
     $mailSuccessCode = $mail->send();
     if ($mailSuccessCode) {
         $mailResponse = "Message has been sent";
