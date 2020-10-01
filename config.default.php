@@ -3,8 +3,8 @@
 return [
     'page' => [
         'language' => 'en', // two digits as of ISO 639-1
-        'title' => '',
-        'description' => '',
+        'title' => 'Ask me something random!',
+        'description' => 'Feel free to ask me anything. Please just be reasonably polite.',
     ],
     'owner' => [
         'name' => '',
@@ -21,13 +21,13 @@ return [
         'allow-bad-recipient' => false, // Set to tue if you want to skip PHPMailers E-Mail validation (e.g. name only recipients for local test sendmail setup)
     ],
     'message' => [
-        'subject' => 'New Message for you',
-        'sender' => '',
+        'subject' => 'New message for you',
+        'sender' => 'ask@example.com',
         'force-sender' => false, // Always set it to sender even if a senders E-Mail is given
     ],
     'form' => [
         'message' => [
-            'label' => 'Your Message for me',
+            'label' => 'Your Message to me',
             'placeholder' => 'I\'ve always wanted to tell you...',
         ],
         'submit' => [

@@ -233,7 +233,7 @@ session_unset();
                 if (!empty($recipientChoices)) {
                 echo '
                 <div class="item full-width">
-                    <label for="recipient">Recipient: </label><br>
+                    <label for="recipient">' . $config['form']['recipient']['label'] .'</label><br>
                     <div class="full-width">';
                     if (empty($recipientChoices['domains']) || empty($recipientChoices['users'])) {
                         echo "<select class=\"full-width\" name=\"recipient-address\" id=\"recipient-address\" required>\n";
