@@ -104,6 +104,7 @@ key | description | default | type
 language | Two digit language code (as of [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)) of your site, only used in the HTML header | `'en'` | string
 title | Title tag and heading on the page | `'Ask me something!'` | string
 description | HTML Meta description and printed below the heading | `'Feel  free to ask me anything. Please just be reasonably polite.'` | string
+debug | Enable PHPs printing of exceptions, ... | `false` | boolean
 
 ## owner
 

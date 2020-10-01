@@ -5,6 +5,7 @@ return [
         'language' => 'en', // two digits as of ISO 639-1
         'title' => 'Ask me something random!',
         'description' => 'Feel free to ask me anything. Please just be reasonably polite.',
+				'debug' => false,
     ],
     'owner' => [
         'name' => '',
