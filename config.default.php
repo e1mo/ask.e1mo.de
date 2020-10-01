@@ -35,7 +35,6 @@ return [
             ]
         ]
     ],
-    'debounce' => true, // TODO: Avoid duplicate sending
     'email' => [
         'provider' => 'sendmail',
         'smtp' => [

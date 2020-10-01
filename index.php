@@ -7,6 +7,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+session_start();
+
 $default_config = require('config.default.php');
 $config = require('config.php');
 $config = array_replace_recursive($default_config, $config);
@@ -19,8 +21,9 @@ if (strtolower($config['email']['provider']) == 'smtp') {
 
 $message = '';
 $mailSuccessCode = true;
+$mailResponse = (!empty($_SESSION['message']) ? $_SESSION['message'] : '');
 
-if (isset($_POST['message'])) {
+if (isset($_POST['message']) && empty($_SESSION['message'])) {
     $message .= 'Message on '.date('c') . ":\n\n";
     $message .= $_POST['message'];
     // In case any of our lines are larger than 70 characters, we should use wordwrap()
@@ -120,8 +123,23 @@ if (isset($_POST['message'])) {
 
             break;
     }
-}
 
+    if ($mailSuccessCode) {
+        // We're doing thhis to avoid sending messages twice when you reload
+        // Your browser will prompt you, if you want to re-send the form data you've provided
+        // and therefore you would trigger sending it again
+        // So on success the user is redirected once to the current script without the POST Form Data
+        // The success message is stored and printed out on the next page visit, after the redirect
+        $_SESSION['mail-sent'] = true;
+        $_SESSION['message'] = $mailResponse;
+        header('Location: ' .
+            (stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://') .
+            $_SERVER['HTTP_HOST'] .
+            $_SERVER['REQUEST_URI']);
+        exit();
+    }
+}
+session_unset();
 ?>
 
 <!DOCTYPE html>
@@ -136,7 +154,7 @@ if (isset($_POST['message'])) {
 <body>
     <div class="content">
         <?php
-            if (isset($mailResponse)) {
+            if (!empty($mailResponse)) {
                 if ($mailSuccessCode) {
                     $base = '<div class="success">%s</div>';
                 } else {
