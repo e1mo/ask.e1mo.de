@@ -78,8 +78,9 @@ if (isset($_POST['message']) && empty($_SESSION['message'])) {
     $mail->CharSet = 'UTF-8';
     if (strtolower($config['email']['provider']) === 'smtp') {
         $mail->isSMTP();
-    } else {
-        $mail->isSendmail();
+				if (debug) {
+					$mail->SMTPDebug = SMTP::DEBUG_CONNECTION;
+				}
         $mail->Host = $config['email']['smtp']['host'];
         $mail->SMTPAuth = true;
         $mail->Username = $config['email']['smtp']['user'];
@@ -91,6 +92,8 @@ if (isset($_POST['message']) && empty($_SESSION['message'])) {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         }
         $mail->Port = (int) $config['email']['smtp']['port'];
+    } else {
+        $mail->isSendmail();
     }
 
     if (!empty($senderName)) {
