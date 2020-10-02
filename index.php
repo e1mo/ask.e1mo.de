@@ -9,7 +9,9 @@ $default_config = require('config.default.php');
 $config = require('config.php');
 $config = array_replace_recursive($default_config, $config);
 
-if ($config['page']['debug']) {
+define('debug', $config['page']['debug']);
+
+if (debug) {
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
@@ -74,13 +76,13 @@ if (isset($_POST['message']) && empty($_SESSION['message'])) {
         }
     }
 
-    $mail = new PHPMailer(false);
+    $mail = new PHPMailer(debug);
     $mail->CharSet = 'UTF-8';
     if (strtolower($config['email']['provider']) === 'smtp') {
         $mail->isSMTP();
-				if (debug) {
-					$mail->SMTPDebug = SMTP::DEBUG_CONNECTION;
-				}
+        if (debug) {
+            $mail->SMTPDebug = SMTP::DEBUG_CONNECTION;
+        }
         $mail->Host = $config['email']['smtp']['host'];
         $mail->SMTPAuth = true;
         $mail->Username = $config['email']['smtp']['user'];
@@ -119,9 +121,15 @@ if (isset($_POST['message']) && empty($_SESSION['message'])) {
     $mail->Body    = $message;
 
     foreach ($config['modules']['headers'] as $module) {
+        if (debug) {
+            printf("Loading headers from module %s\n", $module);
+        }
         $addHeaders = require( __DIR__ . '/modules/' . $module . '/headers.php');
         foreach ($addHeaders as $hname => $hval) {
-            $mail->addCustomHeader($hname, $hval);
+            $hsucess = $mail->addCustomHeader($hname, $hval);
+            if (debug) {
+                printf("Added header \"%s\" with value \"%s\" (%s)\n", $hname, $hval, ($hsucess ? 'ok' : 'failed'));
+            }
         }
     }
 
@@ -133,7 +141,7 @@ if (isset($_POST['message']) && empty($_SESSION['message'])) {
         $mailResponse = "Message could not be sent. Mailer Error: " . $mail->ErrorInfo;
     }
 
-    if ($mailSuccessCode) {
+    if ($mailSuccessCode && !debug) {
         // We're doing thhis to avoid sending messages twice when you reload
         // Your browser will prompt you, if you want to re-send the form data you've provided
         // and therefore you would trigger sending it again
@@ -253,18 +261,18 @@ session_unset();
                         }
                         echo "</select>
                         <span class=\"at-connector\">@</span>";
-												if (count($recipientChoices['domains']) > 1) {
-													echo "<select name=\"recipient-domain\" id=\"recipient-domain\" required>\n";
-													foreach ($recipientChoices['domains'] as $domain) {
-															printf("<option value=\"%1\$s\">%1\$s</option>\n", $domain);
-													}
-													echo '</select>';
-												} else {
-													printf('
-														<span>%1$s</span><input type="hidden" value="%1$s" name="recipient-domain">',
-														$recipientChoices['domains'][0]
-													);
-												}
+                        if (count($recipientChoices['domains']) > 1) {
+                            echo "<select name=\"recipient-domain\" id=\"recipient-domain\" required>\n";
+                            foreach ($recipientChoices['domains'] as $domain) {
+                                    printf("<option value=\"%1\$s\">%1\$s</option>\n", $domain);
+                            }
+                            echo '</select>';
+                        } else {
+                            printf('
+                                <span>%1$s</span><input type="hidden" value="%1$s" name="recipient-domain">',
+                                $recipientChoices['domains'][0]
+                            );
+                        }
                     }
                     echo '</div>
                 </div>
