@@ -34,10 +34,14 @@ function processRecipientChoices(array $recipientChoices) :array {
   if ($depth == 1) {
     $choices['addresses'] = $recipientChoices;
   } elseif ($depth == 2) {
-    var_dump($recipientChoices);
     if (array_key_exists('domains', $recipientChoices) && array_key_exists('users', $recipientChoices)) {
       $choices['domains'] = $recipientChoices['domains'];
       $choices['users'] = $recipientChoices['users'];
+      foreach ($choices['domains'] as $domain) {
+        foreach ($choices['users'] as $user) {
+          $choices['addresses'][] = $user . '@' . $domain;
+        }
+      }
     } else {
       $choices['domains'] = array_keys($recipientChoices);
       foreach ($choices['domains'] as $domain)  {
@@ -50,23 +54,23 @@ function processRecipientChoices(array $recipientChoices) :array {
             $choices['users'] = $recipientChoices[$domain];
           }
         }
-      }
-    }
 
-    foreach ($choices['domains'] as $domain) {
-      foreach($recipientChoices[$domain] as $user) {
-        if (!empty($domain)) {
-          $choices['addresses'][] = $user . '@' . $domain;
-        } else {
-          $choices['addresses'][] = $user;
+        foreach ($choices['domains'] as $domain) {
+          foreach($recipientChoices[$domain] as $user) {
+            if (!empty($domain)) {
+              $choices['addresses'][] = $user . '@' . $domain;
+            } else {
+              $choices['addresses'][] = $user;
+            }
+          }
         }
       }
     }
+
   } else {
     throw new Exception("There are to many levels for custom recipient choices available. Maximum is 2", 1);
   }
 
-   var_dump($choices);
 
   return $choices;
 }
