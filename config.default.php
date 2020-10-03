@@ -13,15 +13,15 @@ return [
     'recipient-choices' => [
       'enabled' => false,
       'choices' => [
-        'domains' => [
-          'myname.info',
-          'my.org',
-        ],
-        'users' => [
-          'hello',
-          'ask',
-          'awesome'
-        ]
+        //'domain' => [
+        //  'myname.info',
+        //  'my.org',
+        //],
+        //'user' => [
+        //  'hello',
+        //  'ask',
+        //  'awesome'
+        //]
       ]
     ],
     'allow-bad-recipient' => false, // Set to true if you want to skip PHPMailers E-Mail validation (e.g. name only recipients for local test sendmail setup)
