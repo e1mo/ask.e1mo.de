@@ -1,12 +1,12 @@
 # ask.e1mo.de
 
-A more or less simple php application to take in anonymus questions from people you know. It's a bit like [Tellonym](https://en.wikipedia.org/wiki/Tellonym) but hosted on your own platform and based on open and established Protocols. If there is a new message for you, you will get an E-Mail. There is no data stored by the application itself. Therefore it does not require any form of Database or writable storage. In future the could even be some sort of automatic PGP encrypton for enhanced privacy & security. On the clientside, only CSS is required. There is no JavaScript to make the page unresponsive and intrusive.
+A more or less simple php application to take in anonymous questions from people you know. It's a bit like [Tellonym](https://en.wikipedia.org/wiki/Tellonym) but hosted on your own platform and based on open and established protocols. If there is a new message for you, you will get an E-Mail. There is no data stored by the application itself. Therefore, it does not require any form of database or writable storage. In future there could even be some sort of automatic PGP encryption for enhanced privacy & security. On the clientside, only CSS is required. There is no JavaScript to make the page unresponsive and intrusive.
 
 It is capable of sending E-Mail either trough SMTP or sendmail.
 
 ## Requirements
 
-- PHP, tested with Version 7.4 but should be finde with at leas 7.\*
+- PHP, tested with Version 7.4 but should be fine with at least 7.\*
 - Webserver (nginx example is provided)
 - Some sort of Mail Transfer Agent (MTA)
 	- SMTP Server
@@ -35,7 +35,7 @@ $ vim config.php
 # A listing of all configuration parameters is further down in the README.md
 ```
 
-That's it for the basic setup, now you need to configure your webserver. If you want to use the provided [nginx](https://www.nginx.com/) configuration (located at [`res/nginx-vhost.conf`](res/nginx-vhost.conf) simply copy copy it to your sites directory. Usually it is `/etc/nginx/sites-enabled/`.
+That's it for the basic setup, now you need to configure your webserver. If you want to use the provided [nginx](https://www.nginx.com/) configuration (located at [`res/nginx-vhost.conf`](res/nginx-vhost.conf) simply copy it to your sites directory. Usually it is `/etc/nginx/sites-enabled/`.
 
 ```
 $ sudo cp res/nginx-vhost.conf /etc/nginx/sites-enabled/ask.e1mo.de.conf
@@ -49,11 +49,11 @@ $ sudo nginx -t
 $ sudo systemctl restart nginx
 ```
 
-If you are using the [apache httpd web server](https://httpd.apache.org/) any basic configuration should do. Only note, that you must manually create a `.htaccess` or something comparable to deny access to the `config.php`! Theoretically it s hould not display anything, but in case PHP is misconfigured it may leak your SMTP Credentials.
+If you are using the [apache httpd web server](https://httpd.apache.org/) any basic configuration should do. Only note, that you must manually create a `.htaccess` or something comparable to deny access to the `config.php`! Theoretically it should not display anything, but in case PHP is misconfigured it may leak your SMTP Credentials.
 
 ## Configuration
 
-All configuration parameters are read from `config.php`. Values not defined in there will be taken from `config.default.php`. This is a fail-safe, do not the defaults file, there is a good chance of it causing errors. It will also be updated with newer releases to avoid errors.
+All configuration parameters are read from `config.php`. Values not defined in there will be taken from `config.default.php`. This is a fail-safe, do not edit the defaults file, there is a good chance of it causing errors. It will also be updated with newer releases to avoid errors.
 
 The configuration is divided into these sections, they're explain in more detail down below:
 
@@ -65,9 +65,9 @@ message | A few parameters about the message being sent
 form | Placeholders and labels for the form fields
 email | Configure the sending of mails
 
-As a note: The subsection headings define the top level array key, the keys in the table reference the direct key within the n-th Level array.
+As a note: The subsection headings define the top-level array key, the keys in the table reference the direct key within the n-th Level array.
 
-For Example, if the heading reads `page` and in the table `lang` the correspondign (trimmed) Config looks like this:
+For Example, if the heading reads `page` and in the table `lang` the corresponding (trimmed) config looks like this:
 
 ```php
 <?php
@@ -81,7 +81,7 @@ return [
 ];
 ```
 
-If you have deeper level keys, such under `email` the subheadign `smtp` and the key `host` it will look like this and so on:
+If you have deeper level keys, such under `email` the subheading `smtp` and the key `host` it will look like this and so on:
 
 ```php
 <?php
@@ -97,7 +97,7 @@ return [
 
 ### page
 
-This section section basic parameters of the page. These preferences are located under the `page` key.
+This section basic parameters of the page. These preferences are located under the `page` key.
 
 key | description | default | type
 --- | ----------- | ------- | ----
@@ -108,7 +108,7 @@ debug | Enable PHPs printing of exceptions, ... | `false` | boolean
 
 ### owner
 
-This section controlls to whom the mail should go.
+This section controls to whom the mail should go.
 
 key | description | default | type
 --- | ----------- | ------- | ----
@@ -128,7 +128,7 @@ Some explanation and examples for the `choices` key:
 
 The simplest configuration looks like this:
 
-Please not that these the layout for this section of the configuration **may be subject to change**. But we'll try to maintain a level of backward-compatibility.
+Please note that these the layout for this section of the configuration **may be subject to change**. But we'll try to maintain a level of backward compatibility.
 
 ```php
 'choices' => [
@@ -172,7 +172,7 @@ In this case, just like the one above, **one** drop-down will be present above t
 ]
 ```
 
-In this case, just like the one above, **two** drop-down will be present above the submit button. One for the user (the part before the @-sign) and one for the domain. It happens when domain-keys are given and the values are equal across all domains.
+In this case, just like the one above, **two** drop-down will be present above the submit button. One for the user (the part before the @-sign) and one for the domain. It happens when domain-keys are given, and the values are equal across all domains.
 
 ### message
 
@@ -184,7 +184,7 @@ force-sender | Always set the from E-Mail to the value of `sender`. If a user pr
 
 ### form
 
-Every entry, except the submit button, consists of of a label and a placeholder, both of them are strings. Labels will be printed above the field, placeholders are present when there is nothing inside a input field.
+Every entry, except the submit button, consists of a label and a placeholder, both of them are strings. Labels will be printed above the field, placeholders are present when there is nothing inside an input field.
 
 key | description | default | type
 --- | ----------- | ------- | ----
@@ -212,7 +212,7 @@ smtp | Configuration (host, user, password, port, crypt) when using SMTP. See [s
 
 key | description | default | type
 --- | ----------- | ------- | ----
-host | IP-Address or FQDN of the outgoing Mailserver | `''` | string
+host | IP-Address or FQDN of the outgoing mail server | `''` | string
 port | Port for SMTP on the host | `465` | integer
 crypt | Encryption when communicating with the smtp-host. Can be `smtps` or `starttls`  | `'smtps'` | string
 user | User for authenticating against the smtp-host | `''` | string
@@ -228,13 +228,13 @@ See [modules](#modules-1) for further explanation of the different functions a m
 
 ## Modules
 
-Modules are still very much WIP. Currently modules only can add custom headers to the E-Mails sent out. Their layout is very simple. Header-Modules must be listed in the configuration under `['modules']['headers']` to be enabled. It must be listed with the name the module (located in `/modules/`) folder has. For every supported function, the module must provide a corresponding PHP file returning a certain datatype.
+Modules are still very much WIP. Currently, modules only can add custom headers to the E-Mails sent out. Their layout is very simple. Header-Modules must be listed in the configuration under `['modules']['headers']` to be enabled. It must be listed with the name the module (located in `/modules/`) folder has. For every supported function, the module must provide a corresponding PHP file returning a certain datatype.
 
-In this table are all supported functions with their filenames, return types and an examples listed:
+In this table are all supported functions with their filenames, return types, and an examples listed:
 
 Function | Explanation | Filename | Data-Type | Example
 -------- | ----------- | -------- | --------- | -------
-Headers  | Add custom headers to ourgoing mail | `headers.php` | Array, keys are the header names and values the values | <https://github.com/e1mo/git-version-headers/blob/main/headers.php>
+Headers  | Add custom headers to outgoing mail | `headers.php` | Array, keys are the header names and values the values | <https://github.com/e1mo/git-version-headers/blob/main/headers.php>
 
 
 ## LICENSE
