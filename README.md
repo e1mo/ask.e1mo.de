@@ -142,29 +142,12 @@ In this case **one** drop-down will be present above the submit button. All addr
 
 ```php
 'choices' => [
-	'mysite.org' => [
-		'me',
+	'domains' => [
+		'mysite.org',
 		'awesome-you',
-		'info'
+		'ask.me'
 	],
-	'another-person.org' => [
-		'hello',
-		'name',
-		'info'
-	]
-]
-```
-
-In this case, just like the one above, **one** drop-down will be present above the submit button. All addresses will be available as separate entries. It happens when domain-keys are given, but the values inside differ.
-
-```php
-'choices' => [
-	'mysite.org' => [
-		'me',
-		'awesome-you',
-		'info'
-	],
-	'another-person.org' => [
+	'users' => [
 		'me',
 		'awesome-you',
 		'info'
@@ -172,7 +155,7 @@ In this case, just like the one above, **one** drop-down will be present above t
 ]
 ```
 
-In this case, just like the one above, **two** drop-down will be present above the submit button. One for the user (the part before the @-sign) and one for the domain. It happens when domain-keys are given, and the values are equal across all domains.
+In this case **two** drop-downs will be present above the submit button. One for the user (the part before the @-sign) and one for the domain. It happens when domain-keys are given, and the values are equal across all domains.
 
 ### message
 

@@ -255,12 +255,19 @@ session_unset();
                         }
                         echo "</select>";
                     } else {
-                        echo "<select name=\"recipient-user\" id=\"recipient-user\" required>\n";
-                        foreach ($recipientChoices['users'] as $user) {
-                            printf("<option value=\"%1\$s\">%1\$s</option>\n", $user);
+                        if (count($recipientChoices['users']) > 1) {
+                          echo "<select name=\"recipient-user\" id=\"recipient-user\" required>\n";
+                          foreach ($recipientChoices['users'] as $user) {
+                              printf("<option value=\"%1\$s\">%1\$s</option>\n", $user);
+                          }
+                          echo "</select>";
+                        } else {
+                            printf('
+                                <span>%1$s</span><input type="hidden" value="%1$s" name="recipient-user">',
+                                $recipientChoices['users'][0]
+                            );
                         }
-                        echo "</select>
-                        <span class=\"at-connector\">@</span>";
+                        echo "<span class=\"at-connector\">@</span>";
                         if (count($recipientChoices['domains']) > 1) {
                             echo "<select name=\"recipient-domain\" id=\"recipient-domain\" required>\n";
                             foreach ($recipientChoices['domains'] as $domain) {
